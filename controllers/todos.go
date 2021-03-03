@@ -111,6 +111,7 @@ func DeleteTodo(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
+// UpdateTodo ..
 func UpdateTodo(c *gin.Context) {
 	id := c.Param("id")
 	objectID, err := primitive.ObjectIDFromHex(id)
