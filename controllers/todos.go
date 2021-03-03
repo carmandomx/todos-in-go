@@ -49,7 +49,7 @@ func CreateTodo(c *gin.Context) {
 	c.JSON(http.StatusCreated, todo)
 }
 
-// GetTodos...
+// GetTodos ...
 func GetTodos(c *gin.Context) {
 	opts := options.Find()
 
@@ -82,5 +82,72 @@ func GetTodos(c *gin.Context) {
 		"count": count,
 		"todos": result,
 	})
+
+}
+
+// DeleteTodo ...
+func DeleteTodo(c *gin.Context) {
+	id := c.Param("id")
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"reason": "Invalid ID",
+		})
+		return
+	}
+	res := col.FindOneAndDelete(context.TODO(), bson.M{
+		"_id": objectID,
+	})
+
+	if res.Err() != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"reason": "Error while deleting, try again later",
+		})
+		return
+	}
+
+	c.JSON(http.StatusNoContent, gin.H{})
+}
+
+func UpdateTodo(c *gin.Context) {
+	id := c.Param("id")
+	objectID, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"reason": "Invalid ID",
+		})
+		return
+	}
+	var updatedTodo models.Todo
+	if err := c.ShouldBindJSON(&updatedTodo); err != nil {
+		var verr validator.ValidationErrors
+
+		if errors.As(err, &verr) {
+			c.JSON(http.StatusBadRequest, gin.H{"errors": formatter.NewJSONFormatter().Simple(verr)})
+			return
+		}
+
+		c.Error(err)
+		return
+	}
+	opts := options.FindOneAndUpdate()
+	filter := bson.M{"_id": bson.M{"$eq": objectID}}
+	update := bson.M{"$set": bson.M{"task": updatedTodo.Task, "student": updatedTodo.Student}}
+	opts.SetReturnDocument(options.After)
+	res := col.FindOneAndUpdate(context.TODO(), filter, update, opts)
+
+	err = res.Decode(&updatedTodo)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"reason": "Error saving to DB, please try again",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedTodo)
 
 }
