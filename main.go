@@ -10,8 +10,7 @@ import (
 func main() {
 	r := gin.Default()
 	formatter.NewJSONFormatter()
-	config := cors.DefaultConfig()
-	r.Use(cors.New(config))
+	r.Use(cors.Default())
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"server": "ok",
