@@ -3,13 +3,15 @@ package main
 import (
 	"github.com/carmandomx/todos-in-go.git/controllers"
 	"github.com/carmandomx/todos-in-go.git/formatter"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	r := gin.Default()
 	formatter.NewJSONFormatter()
-
+	config := cors.DefaultConfig()
+	r.Use(cors.New(config))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"server": "ok",
