@@ -136,7 +136,7 @@ func UpdateTodo(c *gin.Context) {
 	}
 	opts := options.FindOneAndUpdate()
 	filter := bson.M{"_id": bson.M{"$eq": objectID}}
-	update := bson.M{"$set": bson.M{"task": updatedTodo.Task, "student": updatedTodo.Student}}
+	update := bson.M{"$set": bson.M{"isCompleted": updatedTodo.IsCompleted}}
 	opts.SetReturnDocument(options.After)
 	res := col.FindOneAndUpdate(context.TODO(), filter, update, opts)
 
