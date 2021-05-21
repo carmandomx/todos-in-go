@@ -36,7 +36,7 @@ func CreateTodo(c *gin.Context) {
 	}
 
 	todo.ID = id
-
+	todo.IsCompleted = false
 	_, err := col.InsertOne(context.TODO(), todo)
 
 	if err != nil {
